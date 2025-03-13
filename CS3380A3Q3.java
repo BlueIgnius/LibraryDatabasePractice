@@ -164,7 +164,7 @@ class MyDatabase {
 
 			try
 			{
-				String query = "SELECT first, last, id FROM people WHERE LOWER(first) LIKE ? AND LOWER(last) LIKE ?";
+				String query = "SELECT DISTINCT first, last, id FROM people WHERE LOWER(first) LIKE ? AND LOWER(last) LIKE ?";
 				PreparedStatement preparedStatement = connection.prepareStatement(query);
 				preparedStatement.setString(1, tokens[0]);
 				preparedStatement.setString(2, tokens[1]);
@@ -207,7 +207,46 @@ class MyDatabase {
 	{
 		if(id.length() > 0)
 		{
-			System.out.println("Entered");
+			try
+			{
+				String query = "SELECT DISTINCT first, last, aid FROM people WHERE id LIKE ?";
+				PreparedStatement preparedStatement = connection.prepareStatement(query);
+				preparedStatement.setString(1, id);
+				
+				ResultSet resultSet = preparedStatement.executeQuery();
+				System.out.println("-----------------------Results-----------------------");
+
+				boolean hasResults = false;
+				while (resultSet.next()) 
+				{
+					String firstName = "[First Name]: " + resultSet.getString("first");
+					String lastName = "\t[Last Name]: " + resultSet.getString("last");
+					String aidPreped = "\t[AID]: ";
+					String aidResult = resultSet.getString("aid");
+					hasResults = true;
+
+					if(aidResult != null)
+					{
+						System.out.println(firstName + lastName + aidPreped + aidResult);
+					}
+					else
+					{
+						System.out.println(firstName + lastName);
+					}
+				}
+
+				if (!hasResults) {
+					System.out.println("No results found.");
+				}
+
+				resultSet.close();
+				preparedStatement.close();
+			}
+			catch (SQLException e)
+			{
+				System.out.println("Oops! We were unable to find the name you are looking for!");
+				e.printStackTrace(System.out);
+			}
 		}
 		else
 		{
@@ -216,8 +255,45 @@ class MyDatabase {
 	}
 
 	//3
-	public void lookupWhoSells(String id) {
+	public void lookupWhoSells(String id)
+	{
+		if(id.length() > 0)
+		{
+			try
+			{
+				String query = "SELECT COUNT(*) FROM people NATURAL JOIN books NATURAL JOIN store NATURAL JOIN sells WHERE aid LIKE ?";
+				PreparedStatement preparedStatement = connection.prepareStatement(query);
+				preparedStatement.setString(1, id);
+				
+				ResultSet resultSet = preparedStatement.executeQuery();
+				System.out.println("-----------------------Results-----------------------");
 
+				boolean hasResults = false;
+				while (resultSet.next()) 
+				{
+					String booksOnSale = "[Books On Sale]: " + resultSet.getString("");
+					hasResults = true;
+					
+					System.out.println(booksOnSale);
+				}
+
+				if (!hasResults) {
+					System.out.println("No results found.");
+				}
+
+				resultSet.close();
+				preparedStatement.close();
+			}
+			catch (SQLException e)
+			{
+				System.out.println("Oops! We were unable to find the name you are looking for!");
+				e.printStackTrace(System.out);
+			}
+		}
+		else
+		{
+			System.out.println("Please enter a valid id number.");
+		}
 	}
 
 	//4

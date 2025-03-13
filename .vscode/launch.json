@@ -6,6 +6,13 @@
             "name": "CS3380A3Q3",
             "request": "launch",
             "mainClass": "CS3380A3Q3",
+            "projectName": "COMP3380A3_22c9b998"
+        },
+        {
+            "type": "java",
+            "name": "CS3380A3Q3",
+            "request": "launch",
+            "mainClass": "CS3380A3Q3",
             "projectName": "Part3StarterCode_305de4c3"
         },
         {
