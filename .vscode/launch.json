@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CS3380A3Q3",
+            "request": "launch",
+            "mainClass": "CS3380A3Q3",
+            "projectName": "Part3StarterCode_305de4c3"
+        },
+        {
+            "type": "java",
+            "name": "Launch CS3380A3Q3",
+            "request": "launch",
+            "mainClass": "CS3380A3Q3",
+            "projectName": "Part3StarterCode",
+            "classPaths": [
+                "lib/sqlite-jdbc-3.39.3.0.jar"
+            ]
+        }
+    ]
+}
