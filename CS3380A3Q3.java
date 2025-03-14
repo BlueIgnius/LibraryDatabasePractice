@@ -216,8 +216,8 @@ class MyDatabase
 		{
 			try
 			{
-				String aid = "%" + id.trim() + "%";
-				String query = "SELECT DISTINCT first, last, aid FROM people WHERE id LIKE ?";
+				String aid = id.trim();
+				String query = "SELECT DISTINCT first, last, aid FROM people WHERE id = ?";
 				PreparedStatement preparedStatement = connection.prepareStatement(query);
 				preparedStatement.setString(1, aid);
 				
@@ -270,13 +270,13 @@ class MyDatabase
 		{
 			try
 			{
-				String aid = "%" + id + "%";
+				String aid = id.trim();
 
-				String query = "SELECT store.name, COUNT(books.pid) AS numbooks " +
+				String query = "SELECT DISTINCT store.name, COUNT(books.pid) AS numbooks " +
 							   "FROM store " +
 							   "JOIN sells ON store.id = sells.sid " +
 							   "JOIN books ON sells.pid = books.pid " +
-							   "WHERE books.aid LIKE ? " +
+							   "WHERE books.aid = ? " +
 							   "GROUP BY store.name";
 				PreparedStatement preparedStatement = connection.prepareStatement(query);
 				preparedStatement.setString(1, aid);
@@ -294,7 +294,7 @@ class MyDatabase
 					if(storeName != null)
 					{
 						hasResults = true;
-						System.out.println(String.format("[StoreName]: %-20s [Books On Sale]: %s", storeName, numBooks));
+						System.out.println(String.format("[Store Name]: %-20s [Books On Sale]: %s", storeName, numBooks));
 					}
 				}
 
@@ -402,22 +402,151 @@ class MyDatabase
 	}
 
 	//6
-	public void whoDoesNotSell(String id) {
+	public void whoDoesNotSell(String id)
+	{
+		if(id.length() > 0)
+		{
+			try
+			{
+				String aid = id;
 
+				String query = "SELECT DISTINCT store.name FROM store " + 
+							   "EXCEPT SELECT store.name " +
+							   "FROM store " +
+							   "JOIN sells ON store.id = sells.sid " +
+							   "JOIN books ON sells.pid = books.pid " +
+							   "WHERE books.aid = ? " +
+							   "GROUP BY store.name";
+				PreparedStatement preparedStatement = connection.prepareStatement(query);
+				preparedStatement.setString(1, aid);
+				
+				ResultSet resultSet = preparedStatement.executeQuery();
+				System.out.println("-----------------------Results-----------------------");
+
+				boolean hasResults = false;
+
+				while(resultSet.next())
+				{
+					String storeName = resultSet.getString("name");
+
+					if(storeName != null)
+					{
+						hasResults = true;
+						System.out.println("[Store Name]: " + storeName);
+					}
+				}
+
+				if (!hasResults)
+				{
+					System.out.println("No results found.");
+				}
+
+				resultSet.close();
+				preparedStatement.close();
+			}
+			catch(SQLException e)
+			{
+				System.out.println("Oops! We were unable to find the name you are looking for");
+				e.printStackTrace(System.out);
+			}
+		}
+		else
+		{
+			System.out.println("Please enter a valid id number.");
+		}
 	}
 
 	//7
-	public void getMostPublishers() {
+	public void getMostPublishers()
+	{
+		try
+		{
+			String query = "SELECT DISTINCT people.first, people.last, count(books.pid) AS pidNum " +
+							"FROM people JOIN books ON people.aid = books.aid " +
+							"GROUP BY people.first " +
+							"ORDER BY count(books.pid) DESC " +
+							"LIMIT 5";
 
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			
+			ResultSet resultSet = preparedStatement.executeQuery();
+			System.out.println("-----------------------Results-----------------------");
+
+			boolean hasResults = false;
+			
+			while (resultSet.next()) 
+			{
+				String firstName = "[First Name]: " + resultSet.getString("first");
+				String lastName = "\t[Last Name]: " + resultSet.getString("last");
+				String pidTotal = "\t[Number of Publishers]: " + resultSet.getString("pidNum");
+
+				hasResults = true;
+
+				System.out.println(firstName + lastName + pidTotal);
+			}
+
+			if (!hasResults) {
+				System.out.println("No results found.");
+			}
+
+			resultSet.close();
+			preparedStatement.close();
+		}
+		catch (SQLException e)
+		{
+			System.out.println("Oops! We were unable to find the name you are looking for!");
+			e.printStackTrace(System.out);
+		}
 	}
 
 	//8
-	public void mostCities() {
+	public void mostCities()
+	{
+		try
+		{
+			String query = "SELECT DISTINCT people.first, people.last, count(DISTINCT store.cid) AS cidNum " +
+							"FROM people JOIN books ON people.aid = books.aid " +
+							"JOIN sells ON books.pid = sells.pid " +
+							"JOIN store ON sells.sid = store.id " +
+							"GROUP BY people.first " +
+							"ORDER BY count(DISTINCT store.cid) DESC " +
+							"LIMIT 5";
 
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			
+			ResultSet resultSet = preparedStatement.executeQuery();
+			System.out.println("-----------------------Results-----------------------");
+
+			boolean hasResults = false;
+			
+			while (resultSet.next()) 
+			{
+				String firstName = "[First Name]: " + resultSet.getString("first");
+				String lastName = "\t[Last Name]: " + resultSet.getString("last");
+				String pidTotal = "\t[Number of Cities]: " + resultSet.getString("cidNum");
+
+				hasResults = true;
+
+				System.out.println(firstName + lastName + pidTotal);
+			}
+
+			if (!hasResults) {
+				System.out.println("No results found.");
+			}
+
+			resultSet.close();
+			preparedStatement.close();
+		}
+		catch (SQLException e)
+		{
+			System.out.println("Oops! We were unable to find the name you are looking for!");
+			e.printStackTrace(System.out);
+		}
 	}
 
 	//9
-	public void mostReadPerCountry() {
+	public void mostReadPerCountry()
+	{
 
 	}
 
