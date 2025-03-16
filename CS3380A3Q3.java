@@ -10,10 +10,12 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.util.Scanner;
 
-public class CS3380A3Q3 {
+public class CS3380A3Q3
+{
 	static Connection connection;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception
+	{
 
 		// startup sequence
 		MyDatabase db = new MyDatabase();
@@ -22,7 +24,8 @@ public class CS3380A3Q3 {
 		System.out.println("Exiting...");
 	}
 
-	public static void runConsole(MyDatabase db) {
+	public static void runConsole(MyDatabase db)
+	{
 
 		Scanner console = new Scanner(System.in);
 		System.out.print("Welcome! Type h for help. ");
@@ -31,70 +34,84 @@ public class CS3380A3Q3 {
 		String[] parts;
 		String arg = "";
 
-		while (line != null && !line.equals("q")) {
+		while (line != null && !line.equals("q"))
+		{
 			parts = line.split("\\s+");
 			if (line.indexOf(" ") > 0)
 				arg = line.substring(line.indexOf(" ")).trim();
 
 			if (parts[0].equals("h"))
 				printHelp();
-			else if (parts[0].equals("mp")) {
+			else if (parts[0].equals("mp"))
+			{
 				db.getMostPublishers();
 			}
-
-			else if (parts[0].equals("s")) {
+			else if (parts[0].equals("s")) 
+			{
 				if (parts.length >= 2)
 					db.nameSearch(arg);
 				else
 					System.out.println("Require an argument for this command");
 			}
-
-			else if (parts[0].equals("l")) {
-				try {
+			else if (parts[0].equals("l"))
+			{
+				try
+				{
 					if (parts.length >= 2)
 						db.lookupByID(arg);
 					else
 						System.out.println("Require an argument for this command");
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					System.out.println("id must be an integer");
 				}
 			}
-
-			else if (parts[0].equals("sell")) {
-				try {
+			else if (parts[0].equals("sell"))
+			{
+				try
+				{
 					if (parts.length >= 2)
 						db.lookupWhoSells(arg);
 					else
 						System.out.println("Require an argument for this command");
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					System.out.println("id must be an integer");
 				}
 			}
-
-			else if (parts[0].equals("notsell")) {
-				try {
+			else if (parts[0].equals("notsell"))
+			{
+				try
+				{
 					if (parts.length >= 2)
 						db.whoDoesNotSell(arg);
 					else
 						System.out.println("Require an argument for this command");
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					System.out.println("id must be an integer");
 				}
 			}
-
-			else if (parts[0].equals("mc")) {
+			else if (parts[0].equals("mc"))
+			{
 				db.mostCities();
 			}
 
-			else if (parts[0].equals("notread")) {
+			else if (parts[0].equals("notread"))
+			{
 				db.ownBooks();
 			}
 
-			else if (parts[0].equals("all")) {
+			else if (parts[0].equals("all"))
+			{
 				db.readAll();
 			}
 
-			else if (parts[0].equals("mr")) {
+			else if (parts[0].equals("mr"))
+			{
 				db.mostReadPerCountry();
 			}
 
@@ -108,7 +125,8 @@ public class CS3380A3Q3 {
 		console.close();
 	}
 
-	private static void printHelp() {
+	private static void printHelp()
+	{
 		System.out.println("Library database");
 		System.out.println("Commands:");
 		System.out.println("h - Get help");
@@ -160,52 +178,65 @@ class MyDatabase
 		final int TOKENNUM = 2;
 		String tokens[] = name.split(" ", TOKENNUM);
 
-		if(tokens.length == TOKENNUM)
+		tokens[0] = "%" + tokens[0].toLowerCase().trim() + "%";
+
+		if(tokens.length < TOKENNUM)
 		{
-			tokens[0] = "%" + tokens[0].toLowerCase().trim() + "%";
-			tokens[1] = "%" + tokens[1].toLowerCase().trim() + "%";
-
-			try
+			String emptyQuery = "%%";
+			if(tokens.length < 1)
 			{
-				String query = "SELECT DISTINCT first, last, id " + 
-								"FROM people WHERE LOWER(first) " +
-								"LIKE ? AND LOWER(last) LIKE ?";
-				PreparedStatement preparedStatement = connection.prepareStatement(query);
-				preparedStatement.setString(1, tokens[0]);
-				preparedStatement.setString(2, tokens[1]);
-				
-				ResultSet resultSet = preparedStatement.executeQuery();
-				System.out.println("-----------------------Results-----------------------");
-
-				boolean hasResults = false;
-
-				while (resultSet.next()) 
-				{
-					hasResults = true;
-					System.out.println(
-					"[First Name]: " + resultSet.getString("first") +
-					"\t[Last Name]: " + resultSet.getString("last") +
-					"\t[ID]: " + resultSet.getString("id")
-					);
-				}
-
-				if (!hasResults)
-				{
-					System.out.println("No results found.");
-				}
-
-				resultSet.close();
-				preparedStatement.close();
+				tokens = new String[TOKENNUM];
+				tokens[0] = emptyQuery;
 			}
-			catch (SQLException e)
+			else
 			{
-				System.out.println("Oops! We were unable to find the name you are looking for!");
-				e.printStackTrace(System.out);
+				String first = tokens[0];
+				tokens = new String[TOKENNUM];
+				tokens[0] = first;
 			}
+			tokens[1] = emptyQuery;
 		}
 		else
 		{
-			System.out.println("Please provide a last name for the person you are trying to find.");
+			tokens[1] = "%" + tokens[1].toLowerCase().trim() + "%";
+		}
+
+		try
+		{
+			boolean hasResults = false;
+			String query = "SELECT DISTINCT first, last, id " + 
+							"FROM people WHERE LOWER(first) " +
+							"LIKE ? AND LOWER(last) LIKE ?";
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			ResultSet resultSet;
+
+			preparedStatement.setString(1, tokens[0]);
+			preparedStatement.setString(2, tokens[1]);
+			resultSet = preparedStatement.executeQuery();
+
+			System.out.println("-----------------------Results-----------------------");
+
+			while (resultSet.next()) 
+			{
+				hasResults = true;
+				System.out.println(
+				"[First Name]: " + resultSet.getString("first") +
+				"\t[Last Name]: " + resultSet.getString("last") +
+				"\t[ID]: " + resultSet.getString("id")
+				);
+			}
+
+			if (!hasResults)
+			{
+				System.out.println("No results found.");
+			}
+
+			resultSet.close();
+			preparedStatement.close();
+		}
+		catch (SQLException e)
+		{
+			System.out.println("Oops! We were unable to find the name you are looking for!");
 		}
 	}
 
@@ -216,15 +247,17 @@ class MyDatabase
 		{
 			try
 			{
+				boolean hasResults = false;
 				String aid = id.trim();
 				String query = "SELECT DISTINCT first, last, aid FROM people WHERE id = ?";
 				PreparedStatement preparedStatement = connection.prepareStatement(query);
+				ResultSet resultSet;
+
 				preparedStatement.setString(1, aid);
-				
-				ResultSet resultSet = preparedStatement.executeQuery();
+				resultSet = preparedStatement.executeQuery();
+
 				System.out.println("-----------------------Results-----------------------");
 
-				boolean hasResults = false;
 				while (resultSet.next()) 
 				{
 					String firstName = "[First Name]: " + resultSet.getString("first");
@@ -254,7 +287,6 @@ class MyDatabase
 			catch (SQLException e)
 			{
 				System.out.println("Oops! We were unable to find the name you are looking for!");
-				e.printStackTrace(System.out);
 			}
 		}
 		else
@@ -270,8 +302,8 @@ class MyDatabase
 		{
 			try
 			{
+				boolean hasResults = false;
 				String aid = id.trim();
-
 				String query = "SELECT DISTINCT store.name, COUNT(books.pid) AS numbooks " +
 							   "FROM store " +
 							   "JOIN sells ON store.id = sells.sid " +
@@ -279,12 +311,12 @@ class MyDatabase
 							   "WHERE books.aid = ? " +
 							   "GROUP BY store.name";
 				PreparedStatement preparedStatement = connection.prepareStatement(query);
-				preparedStatement.setString(1, aid);
-				
-				ResultSet resultSet = preparedStatement.executeQuery();
-				System.out.println("-----------------------Results-----------------------");
+				ResultSet resultSet;
 
-				boolean hasResults = false;
+				preparedStatement.setString(1, aid);
+				resultSet = preparedStatement.executeQuery();
+
+				System.out.println("-----------------------Results-----------------------");
 
 				while(resultSet.next())
 				{
@@ -309,7 +341,6 @@ class MyDatabase
 			catch(SQLException e)
 			{
 				System.out.println("Oops! We were unable to find the name you are looking for");
-				e.printStackTrace(System.out);
 			}
 		}
 		else
@@ -323,17 +354,16 @@ class MyDatabase
 	{
 		try
 		{
+			boolean hasResults = false;
 			String query = "SELECT DISTINCT people.first, people.last, books.title " +
 							"FROM people NATURAL JOIN books WHERE people.aid = books.aid " +
 							"EXCEPT SELECT people.first, people.last, books.title " +
 							"FROM people NATURAL JOIN books NATURAL JOIN read " +
 							"WHERE people.aid = books.aid";
 			PreparedStatement preparedStatement = connection.prepareStatement(query);
-			
 			ResultSet resultSet = preparedStatement.executeQuery();
-			System.out.println("-----------------------Results-----------------------");
 
-			boolean hasResults = false;
+			System.out.println("-----------------------Results-----------------------");
 			
 			while (resultSet.next()) 
 			{
@@ -346,7 +376,8 @@ class MyDatabase
 				System.out.println(firstName + lastName + bookTitle);
 			}
 
-			if (!hasResults) {
+			if (!hasResults)
+			{
 				System.out.println("No results found.");
 			}
 
@@ -356,7 +387,6 @@ class MyDatabase
 		catch (SQLException e)
 		{
 			System.out.println("Oops! We were unable to find the name you are looking for!");
-			e.printStackTrace(System.out);
 		}
 	}
 
@@ -365,17 +395,17 @@ class MyDatabase
 	{
 		try
 		{
-			String query = "SELECT DISTINCT people.first, people.last, books.title " +
-							"FROM people JOIN books ON people.aid = books.aid " +
-							"JOIN read ON people.id = read.id " +
-							"GROUP BY people.first";
-
-			PreparedStatement preparedStatement = connection.prepareStatement(query);
-			
-			ResultSet resultSet = preparedStatement.executeQuery();
-			System.out.println("-----------------------Results-----------------------");
-
 			boolean hasResults = false;
+			String query = "SELECT DISTINCT people.first, people.last, books.title " +
+							"FROM people " +
+							"NATURAL JOIN books " +
+							"NATURAL JOIN read " +
+							"WHERE people.aid = books.aid AND people.id = read.id " +
+							"GROUP BY people.first";
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			System.out.println("-----------------------Results-----------------------");
 			
 			while (resultSet.next()) 
 			{
@@ -388,7 +418,8 @@ class MyDatabase
 				System.out.println(firstName + lastName + bookTitle);
 			}
 
-			if (!hasResults) {
+			if (!hasResults)
+			{
 				System.out.println("No results found.");
 			}
 
@@ -398,7 +429,6 @@ class MyDatabase
 		catch (SQLException e)
 		{
 			System.out.println("Oops! We were unable to find the name you are looking for!");
-			e.printStackTrace(System.out);
 		}
 	}
 
@@ -409,8 +439,18 @@ class MyDatabase
 		{
 			try
 			{
-				String aid = id;
+				String aid = id.trim();
 
+				for(int  index = 0; index < aid.length(); index++)
+				{
+					if(!Character.isDigit(aid.charAt(index)))
+					{
+						System.out.println("id must be an integer");
+						return;
+					}
+				}
+
+				boolean hasResults = false;
 				String query = "SELECT DISTINCT store.name FROM store " + 
 							   "EXCEPT SELECT store.name " +
 							   "FROM store " +
@@ -419,12 +459,12 @@ class MyDatabase
 							   "WHERE books.aid = ? " +
 							   "GROUP BY store.name";
 				PreparedStatement preparedStatement = connection.prepareStatement(query);
-				preparedStatement.setString(1, aid);
-				
-				ResultSet resultSet = preparedStatement.executeQuery();
-				System.out.println("-----------------------Results-----------------------");
+				ResultSet resultSet;
 
-				boolean hasResults = false;
+				preparedStatement.setString(1, aid);
+				resultSet = preparedStatement.executeQuery();
+
+				System.out.println("-----------------------Results-----------------------");
 
 				while(resultSet.next())
 				{
@@ -448,7 +488,6 @@ class MyDatabase
 			catch(SQLException e)
 			{
 				System.out.println("Oops! We were unable to find the name you are looking for");
-				e.printStackTrace(System.out);
 			}
 		}
 		else
@@ -462,18 +501,17 @@ class MyDatabase
 	{
 		try
 		{
-			String query = "SELECT DISTINCT people.first, people.last, count(DISTINCT books.pid) AS pidNum " +
+			boolean hasResults = false;
+			String query = "SELECT DISTINCT people.first, people.last, COUNT(DISTINCT books.pid) AS pidNum " +
 							"FROM people JOIN books ON people.aid = books.aid " +
 							"GROUP BY people.first " +
-							"ORDER BY count(DISTINCT books.pid) DESC " +
+							"ORDER BY pidNum DESC " +
 							"LIMIT 5";
 
 			PreparedStatement preparedStatement = connection.prepareStatement(query);
-			
 			ResultSet resultSet = preparedStatement.executeQuery();
-			System.out.println("-----------------------Results-----------------------");
 
-			boolean hasResults = false;
+			System.out.println("-----------------------Results-----------------------");
 			
 			while (resultSet.next()) 
 			{
@@ -486,7 +524,8 @@ class MyDatabase
 				System.out.println(firstName + lastName + pidTotal);
 			}
 
-			if (!hasResults) {
+			if (!hasResults)
+			{
 				System.out.println("No results found.");
 			}
 
@@ -496,7 +535,6 @@ class MyDatabase
 		catch (SQLException e)
 		{
 			System.out.println("Oops! We were unable to find the name you are looking for!");
-			e.printStackTrace(System.out);
 		}
 	}
 
@@ -505,20 +543,19 @@ class MyDatabase
 	{
 		try
 		{
-			String query = "SELECT DISTINCT people.first, people.last, count(DISTINCT store.cid) AS cidNum " +
+			boolean hasResults = false;
+			String query = "SELECT DISTINCT people.first, people.last, COUNT(DISTINCT store.cid) AS cidNum " +
 							"FROM people JOIN books ON people.aid = books.aid " +
 							"JOIN sells ON books.pid = sells.pid " +
 							"JOIN store ON sells.sid = store.id " +
 							"GROUP BY people.first " +
-							"ORDER BY count(DISTINCT store.cid) DESC " +
+							"ORDER BY COUNT(DISTINCT store.cid) DESC " +
 							"LIMIT 5";
 
 			PreparedStatement preparedStatement = connection.prepareStatement(query);
-			
 			ResultSet resultSet = preparedStatement.executeQuery();
-			System.out.println("-----------------------Results-----------------------");
 
-			boolean hasResults = false;
+			System.out.println("-----------------------Results-----------------------");
 			
 			while (resultSet.next()) 
 			{
@@ -531,7 +568,8 @@ class MyDatabase
 				System.out.println(firstName + lastName + pidTotal);
 			}
 
-			if (!hasResults) {
+			if (!hasResults)
+			{
 				System.out.println("No results found.");
 			}
 
@@ -541,7 +579,6 @@ class MyDatabase
 		catch (SQLException e)
 		{
 			System.out.println("Oops! We were unable to find the name you are looking for!");
-			e.printStackTrace(System.out);
 		}
 	}
 
@@ -550,32 +587,36 @@ class MyDatabase
 	{
 		try
 		{
+			boolean hasResults = false;
+			String prevString = "";
 			String query = "SELECT DISTINCT city.country, books.title " +
 							"FROM city JOIN people ON city.cid = people.cid " +
 							"JOIN read ON people.id = read.id " +
 							"JOIN books ON read.bid = books.bid " +
 							"GROUP BY city.country " +
-							"ORDER BY count(read.bid) DESC " +
-							"LIMIT 1";
+							"ORDER BY COUNT(read.id) DESC ";
 
 			PreparedStatement preparedStatement = connection.prepareStatement(query);
-			
 			ResultSet resultSet = preparedStatement.executeQuery();
-			System.out.println("-----------------------Results-----------------------");
 
-			boolean hasResults = false;
+			System.out.println("-----------------------Results-----------------------");
 			
 			while (resultSet.next()) 
 			{
-				String country = "[Country]: " + resultSet.getString("country");
-				String bookTitle = "\t[Book Title]: " + resultSet.getString("Title");
-
+				String country = resultSet.getString("country");
+				String bookTitle = resultSet.getString("Title");
 				hasResults = true;
 
-				System.out.println(country + bookTitle);
+				if(prevString != country)
+				{
+					System.out.println(String.format("[Country]: %-10s [Book Title]: %s", country, bookTitle));
+					prevString = country;
+				}
+
 			}
 
-			if (!hasResults) {
+			if (!hasResults)
+			{
 				System.out.println("No results found.");
 			}
 
@@ -585,8 +626,6 @@ class MyDatabase
 		catch (SQLException e)
 		{
 			System.out.println("Oops! We were unable to find the name you are looking for!");
-			e.printStackTrace(System.out);
 		}
 	}
-
 }

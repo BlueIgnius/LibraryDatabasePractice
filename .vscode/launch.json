@@ -6,6 +6,13 @@
             "name": "CS3380A3Q3",
             "request": "launch",
             "mainClass": "CS3380A3Q3",
+            "projectName": "KennedyArionCOMP3380A3Q3_665df19"
+        },
+        {
+            "type": "java",
+            "name": "CS3380A3Q3",
+            "request": "launch",
+            "mainClass": "CS3380A3Q3",
             "projectName": "COMP3380A3_22c9b998"
         },
         {
