@@ -3,30 +3,37 @@
     "configurations": [
         {
             "type": "java",
-            "name": "LibraryDatabasePractice",
+            "name": "Query",
+            "request": "launch",
+            "mainClass": "CS3380A3Q3",
+            "projectName": "LibraryDatabasePractice_523b4f16"
+        },
+        {
+            "type": "java",
+            "name": "LibraryDatabasePractice_Main",
             "request": "launch",
             "mainClass": "LibraryDatabasePractice",
             "projectName": "KennedyArionLibraryDataBase_665df19"
         },
         {
             "type": "java",
-            "name": "LibraryDatabasePractice",
+            "name": "LibraryDatabasePractice_Query1",
             "request": "launch",
-            "mainClass": "LibraryDatabasePractice",
+            "mainClass": "Query",
             "projectName": "LibraryDatabasePractice_22c9b998"
         },
         {
             "type": "java",
-            "name": "LibraryDatabasePractice",
+            "name": "LibraryDatabasePractice_Query2",
             "request": "launch",
-            "mainClass": "LibraryDatabasePractice",
+            "mainClass": "Query",
             "projectName": "LibraryDatabasePractice_305de4c3"
         },
         {
             "type": "java",
             "name": "Launch Query",
             "request": "launch",
-            "mainClass": "LibraryDatabasePractice",
+            "mainClass": "Query",
             "projectName": "LibraryDataBase",
             "classPaths": [
                 "lib/sqlite-jdbc-3.39.3.0.jar"

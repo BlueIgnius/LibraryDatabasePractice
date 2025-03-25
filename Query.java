@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.util.Scanner;
 
-public class CS3380A3Q3
+public class Query
 {
 	static Connection connection;
 
